@@ -1,0 +1,43 @@
+#timestampdiv_depublish select {
+    height: 21px;
+    line-height: 14px;
+    padding: 0;
+    vertical-align: top;
+    font-size: 12px
+}
+
+#dep_aa, #dep_hh, #dep_jj, #dep_mn {
+    padding: 1px;
+    font-size: 12px
+}
+
+#dep_hh, #dep_jj, #dep_mn {
+    width: 2em
+}
+
+#dep_aa {
+    width: 3.4em
+}
+
+.curtime #timestamp_depublish {
+    padding: 2px 0 1px;
+    display: inline !important;
+    height: auto !important
+}
+
+.curtime #timestamp_depublish::before {
+    content: "\f508";
+    position: relative;
+    top: -1px;
+
+    font: 400 20px/1 dashicons;
+    speak: none;
+    display: inline-block;
+    margin-left: -1px;
+    padding-right: 3px;
+    vertical-align: top;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    color: #82878c;
+}
