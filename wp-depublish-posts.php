@@ -45,6 +45,10 @@ class WPDP_Plugin
         Post::register_hooks();
         Scheduler::register_hooks();
         Metabox::register_hooks();
+
+        if (is_admin()) {
+            Admin::register_hooks();
+        }
     }
 
     /**

@@ -22,14 +22,18 @@ class Helper
 
         $dep_date_local_tz = get_post_meta($post->ID, '_depublish_date', true);
 
+        if (empty($dep_date_local_tz)) {
+            return;
+        }
+
         // Convert to GMT
         $dep_date_gmt = get_gmt_from_date($dep_date_local_tz);
 
-        if (self::_validate_depublish_date($dep_date_gmt)) {
-            return $dep_date_gmt;
+        if (! self::_validate_depublish_date($dep_date_gmt)) {
+            return;
         }
 
-        return false;
+        return $dep_date_gmt;
     }
 
     /**
@@ -48,6 +52,25 @@ class Helper
         $dep_enbl = get_post_meta($post->ID, '_depublish_enable', true);
 
         return ! empty($dep_enbl) && $dep_enbl === '1';
+    }
+
+    static function get_enabled_post_types()
+    {
+        global $wp_post_types;
+
+        $pt = wp_list_pluck($wp_post_types, 'name');
+
+        // Unset irrelevant built-in post types
+        unset($pt['revision']);
+        unset($pt['nav_menu_item']);
+        unset($pt['custom_css']);
+        unset($pt['customize_changeset']);
+
+        if (empty($pt)) {
+            return [];
+        }
+
+        return $pt;
     }
 
     /**
