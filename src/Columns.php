@@ -3,11 +3,11 @@
 namespace WPDP;
 
 /**
- * Additional WordPress admin settings and screen modifications.
+ * WordPress admin screen modifications.
  *
  * @package   WPDP
  */
-class Admin
+class Columns
 {
     /**
      * Hook into WordPress.

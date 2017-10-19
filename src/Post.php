@@ -64,7 +64,7 @@ class Post
      *
      * @param int|WP_Post $post Post ID or post object.
      */
-    static function depublish_post($post)
+    static function depublish_post($post, $run_hooks = true)
     {
 
         if (! $post = get_post($post)) {
@@ -81,16 +81,19 @@ class Post
         $post->post_status = 'pending';
         wp_transition_post_status('pending', $old_status, $post);
 
-        /** This action is documented in wp-includes/post.php */
-        do_action('edit_post', $post->ID, $post);
+        if ($run_hooks) {
 
-        /** This action is documented in wp-includes/post.php */
-        do_action("save_post_{$post->post_type}", $post->ID, $post, true);
+            /** This action is documented in wp-includes/post.php */
+            do_action('edit_post', $post->ID, $post);
 
-        /** This action is documented in wp-includes/post.php */
-        do_action('save_post', $post->ID, $post, true);
+            /** This action is documented in wp-includes/post.php */
+            do_action("save_post_{$post->post_type}", $post->ID, $post, true);
 
-        /** This action is documented in wp-includes/post.php */
-        do_action('wp_insert_post', $post->ID, $post, true);
+            /** This action is documented in wp-includes/post.php */
+            do_action('save_post', $post->ID, $post, true);
+
+            /** This action is documented in wp-includes/post.php */
+            do_action('wp_insert_post', $post->ID, $post, true);
+        }
     }
 }
