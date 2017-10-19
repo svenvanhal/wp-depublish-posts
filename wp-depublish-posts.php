@@ -47,7 +47,7 @@ class WPDP_Plugin
         Metabox::register_hooks();
 
         if (is_admin()) {
-            Admin::register_hooks();
+            Columns::register_hooks();
         }
     }
 

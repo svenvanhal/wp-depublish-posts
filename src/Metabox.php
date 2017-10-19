@@ -51,7 +51,9 @@ class Metabox
             return $post_id;
         }
 
-        update_post_meta($post->ID, '_depublish_enable', empty($_POST['depublish_enable']) ? '0' : '1');
+        $dep_enabled = ! empty($_POST['depublish_enable']);
+
+        update_post_meta($post->ID, '_depublish_enable', $dep_enabled ? '1' : '0');
 
         // Get date fields
         $jj = isset($_POST['dep_jj']) ? zeroise((int) $_POST['dep_jj'], 2) : ''; // Day
@@ -73,8 +75,8 @@ class Metabox
         }
 
         // Depublish post if depublish date in the past
-        if ($timestamp < time()) {
-            Post::depublish_post($post_id);
+        if ($dep_enabled && $timestamp < time()) {
+            Post::depublish_post($post_id, $run_hooks = false);
         }
     }
 

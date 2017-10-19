@@ -49,6 +49,12 @@ class Helper
             return;
         }
 
+        // Check post status
+        if ($post->post_status !== 'publish') {
+            return false;
+        }
+
+        // Check enabled flag
         $dep_enbl = get_post_meta($post->ID, '_depublish_enable', true);
 
         return ! empty($dep_enbl) && $dep_enbl === '1';
