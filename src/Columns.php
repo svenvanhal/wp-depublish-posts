@@ -47,6 +47,12 @@ class Columns
     static function column_content($column, $post_id)
     {
 
+        if (! Helper::is_depublish_enabled($post_id)) {
+            echo '<span aria-hidden="true">&#8212;</span>';
+
+            return;
+        }
+
         switch ($column) {
             case 'depublication_date':
 
