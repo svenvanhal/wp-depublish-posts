@@ -47,30 +47,30 @@ class Columns
     static function column_content($column, $post_id)
     {
 
-        if (! Helper::is_depublish_enabled($post_id)) {
-            echo '<span aria-hidden="true">&#8212;</span>';
-
-            return;
-        }
-
         switch ($column) {
             case 'depublication_date':
 
-                $date = Helper::get_depublish_date($post_id);
+                if (Helper::is_depublish_enabled($post_id)) {
 
-                if (empty($date)) {
-                    echo '<span aria-hidden="true">&#8212;</span>';
+                    $date = Helper::get_depublish_date($post_id);
+
+                    if (empty($date)) {
+                        echo '<span aria-hidden="true">&#8212;</span>';
+                    } else {
+
+                        $ts = strtotime($date);
+                        $diff = human_time_diff(time(), strtotime($date));
+                        $abbr = '<abbr title="%s">%s</abbr>';
+
+                        if ($ts < time()) {
+                            echo sprintf($abbr, esc_attr($date), $diff).' '.__('ago');
+                        } else {
+                            echo __('in').' '.sprintf($abbr, esc_attr($date), $diff);
+                        }
+                    }
                 } else {
 
-                    $ts = strtotime($date);
-                    $diff = human_time_diff(time(), strtotime($date));
-                    $abbr = '<abbr title="%s">%s</abbr>';
-
-                    if ($ts < time()) {
-                        echo sprintf($abbr, esc_attr($date), $diff).' '.__('ago');
-                    } else {
-                        echo __('in').' '.sprintf($abbr, esc_attr($date), $diff);
-                    }
+                    echo '<span aria-hidden="true">&#8212;</span>';
                 }
 
                 break;
