@@ -10,47 +10,49 @@ namespace WPDP;
 class Helper
 {
     /**
+     * Retrieves a post's depublish date.
+     *
      * @param $post
-     * @return bool|mixed|void
+     * @return bool|string
      */
-    static function get_depublish_date($post)
+    public static function get_depublish_date($post)
     {
 
         if (! $post = get_post($post)) {
-            return;
+            return false;
         }
 
         $dep_date_local_tz = get_post_meta($post->ID, '_depublish_date', true);
 
         if (empty($dep_date_local_tz)) {
-            return;
+            return false;
         }
 
         // Convert to GMT
         $dep_date_gmt = get_gmt_from_date($dep_date_local_tz);
 
-        if (! self::_validate_depublish_date($dep_date_gmt)) {
-            return;
+        if (! self::validate_depublish_date($dep_date_gmt)) {
+            return false;
         }
 
         return $dep_date_gmt;
     }
 
     /**
-     * Check if a meta value corresponds to an active depublish setting.
+     * Check if a post is scheduled for depublication.
      *
      * @param $post
-     * @return bool Whether or not depublishing is enabled.
+     * @return bool Whether or not depublish is enabled.
      */
-    static function is_depublish_enabled($post)
+    public static function is_depublish_enabled($post, $check_status = true)
     {
 
         if (! $post = get_post($post)) {
-            return;
+            return false;
         }
 
         // Check post status
-        if ($post->post_status !== 'publish') {
+        if ($check_status && $post->post_status !== 'publish') {
             return false;
         }
 
@@ -60,17 +62,24 @@ class Helper
         return ! empty($dep_enbl) && $dep_enbl === '1';
     }
 
-    static function get_enabled_post_types()
+    /**
+     * Retrieve post types for which depublish is enabled.
+     *
+     * @return array Post types enabled for depublication
+     */
+    public static function get_enabled_post_types()
     {
         global $wp_post_types;
 
         $pt = wp_list_pluck($wp_post_types, 'name');
 
-        // Unset irrelevant built-in post types
+        // Remove irrelevant built-in post types
         unset($pt['revision']);
         unset($pt['nav_menu_item']);
         unset($pt['custom_css']);
         unset($pt['customize_changeset']);
+
+        // @TODO Load enabled post type setting here
 
         if (empty($pt)) {
             return [];
@@ -80,14 +89,16 @@ class Helper
     }
 
     /**
+     * Validate a timestamp or datetime string.
+     *
      * @param int|string $date Date to validate. String is processed with strtotime(), int as timestamps.
      * @return bool Whether or not the date is valid.
      */
-    private static function _validate_depublish_date($date)
+    public static function validate_depublish_date($date)
     {
 
         if (empty($date)) {
-            return;
+            return false;
         }
 
         // Timestamp

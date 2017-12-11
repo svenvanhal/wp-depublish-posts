@@ -12,7 +12,7 @@ class Metabox
     /**
      * Hook into WordPress.
      */
-    static function register_hooks()
+    public static function register_hooks()
     {
 
         add_action('post_submitbox_misc_actions', [__CLASS__, 'render']);
@@ -20,9 +20,9 @@ class Metabox
     }
 
     /**
-     * Saves expiration date as post meta.
+     * Save depublish date as post meta.
      */
-    static function save_meta($post_id)
+    public static function save_meta($post_id)
     {
 
         global $post;
@@ -66,17 +66,16 @@ class Metabox
         // Validate date
         $date_str = $aa.'-'.$mm.'-'.$jj.' '.$hh.':'.$mn.':'.$ss;
         $timestamp = strtotime($date_str);
-        $date_test = date('Y-m-d H:i:s', $timestamp);
 
-        if ($date_str === $date_test) {
+        if (Helper::validate_depublish_date($date_str)) {
 
             // Save the date
-            update_post_meta($post->ID, '_depublish_date', $date_test);
+            update_post_meta($post->ID, '_depublish_date', $date_str);
         }
 
         // Depublish post if depublish date in the past
         if ($dep_enabled && $timestamp < time()) {
-            Post::depublish_post($post_id, $run_hooks = false);
+            Post::depublish_post($post_id, false);
         }
     }
 
@@ -85,7 +84,7 @@ class Metabox
      *
      * @see wp-admin/includes/meta-boxes.php
      */
-    static function render($post)
+    public static function render($post)
     {
 
         $post_type = $post->post_type;
@@ -96,12 +95,12 @@ class Metabox
 
         if ($can_publish) {
             $datef = __('M j, Y @ H:i');
-            $stamp = __('Depublish: <b>%1$s</b>');
+            $stamp = __('Depublish: <b>%1$s</b>', 'wp-depublish-posts');
 
             if (0 != $post->ID && $dep_enabled && ! empty($dep_date)) {
                 $date = date_i18n($datef, strtotime($dep_date));
             } else { // draft (no saves, and thus no date specified)
-                $date = 'never';
+                $date = __('never', 'wp-depublish-posts');
             }
 
             wp_nonce_field('depublish_save_'.$post->ID, '_depublish_nonce');
@@ -118,7 +117,7 @@ class Metabox
                 <fieldset id="timestampdiv_depublish" class="hide-if-js">
                     <p>
                         <label for="depublish_enable"><input type="checkbox" name="depublish_enable" id="depublish_enable" value="1" <?php checked($dep_enabled); ?>>
-                            Enable?
+                            <?php _e('Enable?', 'wp-depublish-posts'); ?>
                         </label>
                     </p>
                     <legend class="screen-reader-text"><?php _e('Date and time'); ?></legend>
@@ -132,6 +131,8 @@ class Metabox
 
     /**
      * Renders HTML form to enter a datetime.
+     *
+     * @return void
      */
     private static function _dateFields()
     {
@@ -177,7 +178,7 @@ class Metabox
         /* translators: 1: month, 2: day, 3: year, 4: hour, 5: minute */
         printf(__('%1$s %2$s, %3$s @ %4$s:%5$s'), $month, $day, $year, $hour, $minute);
 
-        echo ' </div ><input type="hidden" id="dep_ss" name="dep_ss" value="'.$ss.'" />';
+        echo '</div><input type="hidden" id="dep_ss" name="dep_ss" value="'.$ss.'" />';
 
         $map = [
             'mm' => [$mm, $cur_mm],
