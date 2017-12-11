@@ -12,7 +12,7 @@ class Scheduler
     /**
      * Hook into WordPress.
      */
-    static function register_hooks()
+    public static function register_hooks()
     {
         add_action('save_post', [__CLASS__, 'schedule'], 100);
     }
@@ -22,7 +22,7 @@ class Scheduler
      *
      * @param WP_Post $post Post object.
      */
-    static function schedule($post)
+    public static function schedule($post)
     {
 
         if (! $post = get_post($post)) {

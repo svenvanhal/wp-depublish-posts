@@ -12,19 +12,18 @@ class Post
     /**
      * Hook into WordPress.
      */
-    static function register_hooks()
+    public static function register_hooks()
     {
         add_action('depublish_post', [__CLASS__, 'check_and_depublish_post']);
     }
 
     /**
      * Depublish scheduled post and make sure post ID has pending post status.
-     *
      * Invoked by cron 'depublish_post' event. This safeguard prevents cron from depublishing drafts, etc.
      *
-     * @param int|WP_Post $post_id Post ID or post object.
+     * @param int|\WP_Post $post_id Post ID or post object.
      */
-    static function check_and_depublish_post($post_id)
+    public static function check_and_depublish_post($post_id)
     {
 
         if (! $post = get_post($post_id)) {
@@ -60,11 +59,12 @@ class Post
     /**
      * Depublish a post by transitioning the post status.
      *
-     * @global wpdb $wpdb WordPress database abstraction object.
-     *
      * @param int|WP_Post $post Post ID or post object.
+     * @param bool $run_hooks Whether or not to execute save_post hooks.
+     * @return void
+     * @global wpdb $wpdb WordPress database abstraction object.
      */
-    static function depublish_post($post, $run_hooks = true)
+    public static function depublish_post($post, $run_hooks = true)
     {
 
         if (! $post = get_post($post)) {

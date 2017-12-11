@@ -12,7 +12,7 @@ class Columns
     /**
      * Hook into WordPress.
      */
-    static function register_hooks()
+    public static function register_hooks()
     {
 
         // Column headings
@@ -25,10 +25,10 @@ class Columns
 
         // Column sorting (after init so custom post types are registered)
         add_action('init', [__CLASS__, '_register_sorting_hooks']);
-        add_filter('request', [__CLASS__, 'column_depublication_date_sort']);
+        add_filter('request', [__CLASS__, 'column_depublish_date_sort']);
     }
 
-    static function _register_sorting_hooks()
+    public static function _register_sorting_hooks()
     {
         $post_types = Helper::get_enabled_post_types();
 
@@ -37,20 +37,20 @@ class Columns
         }
     }
 
-    static function column_header($defaults)
+    public static function column_header($defaults)
     {
-        $defaults['depublication_date'] = __('Expires', 'wp-depublish-posts');
+        $defaults['depublish_date'] = __('Expires', 'wp-depublish-posts');
 
         return $defaults;
     }
 
-    static function column_content($column, $post_id)
+    public static function column_content($column, $post_id)
     {
 
         switch ($column) {
-            case 'depublication_date':
+            case 'depublish_date':
 
-                if (Helper::is_depublish_enabled($post_id)) {
+                if (Helper::is_depublish_enabled($post_id, false)) {
 
                     $date = Helper::get_depublish_date($post_id);
 
@@ -62,14 +62,16 @@ class Columns
                         $diff = human_time_diff(time(), strtotime($date));
                         $abbr = '<abbr title="%s">%s</abbr>';
 
+                        // Add 'in' or 'ago' to human readable time diff
                         if ($ts < time()) {
-                            echo sprintf($abbr, esc_attr($date), $diff).' '.__('ago');
+                            $output = sprintf(__('%1$s ago', 'wp-depublish-posts'), $diff);
                         } else {
-                            echo __('in').' '.sprintf($abbr, esc_attr($date), $diff);
+                            $output = sprintf(__('in %1$s', 'wp-depublish-posts'), $diff);
                         }
+
+                        printf($abbr, esc_attr($date), $output);
                     }
                 } else {
-
                     echo '<span aria-hidden="true">&#8212;</span>';
                 }
 
@@ -77,16 +79,16 @@ class Columns
         }
     }
 
-    static function column_sorting($columns)
+    public static function column_sorting($columns)
     {
-        $columns['depublication_date'] = 'depublication_date';
+        $columns['depublish_date'] = 'depublish_date';
 
         return $columns;
     }
 
-    static function column_depublication_date_sort($vars)
+    public static function column_depublish_date_sort($vars)
     {
-        if (isset($vars['orderby']) && 'depublication_date' == $vars['orderby']) {
+        if (isset($vars['orderby']) && 'depublish_date' == $vars['orderby']) {
             $vars = array_merge($vars, [
                 'meta_query' => [
                     'relation' => 'OR',
